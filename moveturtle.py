@@ -107,7 +107,7 @@ class MoveTurtle(Node):
         
         # Make sure the turtle is properly aligned before moving forward
 
-        if abs(angle_to_goal - self.turtle_pose.theta) > 0.1:
+        if abs(angle_to_goal - self.turtle_pose.theta) > 0.05:
             velocity.linear.x = 0.0
         else:
             velocity.linear.x = min(max_linear_velocity, distance_to_goal)
