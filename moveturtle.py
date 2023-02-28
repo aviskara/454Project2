@@ -42,7 +42,7 @@ class MoveTurtle(Node):
         self.cord_queue = coordinates
         self.calculate_coordinates(self.cord_queue)
         
-        
+    # updates the internal varables with data recieved from subscriber to be used in publisher
     def pose_callback(self, data):
         self.turtle_pose.x = round(data.x, 2)
         self.turtle_pose.y = round(data.y, 2)
@@ -62,11 +62,11 @@ class MoveTurtle(Node):
         
         DRAW_LINE_ON = 0
         DRAW_LINE_OFF = 1
-        print("a")
+
         cord = coordinates.get()
         original_x = cord.split()[0]
         original_y = cord.split()[1]
-        print("b")
+ 
         # if the new coordiantes are "-1 -1" means need to go to next cord in list with no path drawing
         # else have it on
         if (original_x == '-1') or (original_y == '-1'):
@@ -76,11 +76,10 @@ class MoveTurtle(Node):
             cord = coordinates.get()
             original_x = cord.split()[0]
             original_y = cord.split()[1]
-            
         else:
             self.set_pen(DRAW_LINE_ON)
             
-        print("c")
+        
         print("oiginal coordinates: ", original_x, original_y)
         new_x = ((CURRNT_IMAGE_SIZE/ORIGINAL_IMAGE_SIZE) * float(original_x))
         new_y = 11- ((CURRNT_IMAGE_SIZE/ORIGINAL_IMAGE_SIZE) * float(original_y))
@@ -102,7 +101,6 @@ class MoveTurtle(Node):
         return self.future.result()
     
     # Function to continuosly calculate the distance to the goal as well as the angle the turtle must face to reach the goal. 
-
     def timer_callback(self):
         distance_to_goal = round(((self.goal_x - self.turtle_pose.x) ** 2 + (self.goal_y - self.turtle_pose.y) ** 2) ** 0.5, 2)
         angle_to_goal = round(math.atan2(self.goal_y - self.turtle_pose.y, self.goal_x - self.turtle_pose.x), 2)
@@ -111,7 +109,6 @@ class MoveTurtle(Node):
         velocity = Twist()
         
         # Make sure the turtle is properly aligned before moving forward
-
         if abs(angle_to_goal - self.turtle_pose.theta) > 0.05:
             velocity.linear.x = 0.0
         else:
@@ -120,31 +117,14 @@ class MoveTurtle(Node):
         velocity.angular.z = 4 * (angle_to_goal - self.turtle_pose.theta)
         self.velocity_publisher.publish(velocity)
 
-        # # rotate before driving forwards
-        # if((angle_to_goal - self.turtle_pose.theta) > 0.1):
-        #     velocity.angular.z = 1 * (angle_to_goal - self.turtle_pose.theta)
-        #     velocity.linear.x = 0.0
-        #     self.velocity_publisher.publish(velocity)
-        
-        # # move forwards to goal
-        # else:
-        #     velocity.linear.x = (1.0 * distance_to_goal)
-        #     velocity.angular.z = 0.5 * (angle_to_goal - self.turtle_pose.theta)
-        #     self.velocity_publisher.publish(velocity)
 
         print(distance_to_goal, angle_to_goal, self.turtle_pose.theta)
         
         # set new goal position once arrived
         if distance_to_goal < 0.05:
             # time.sleep(2)
-            print("here")
             self.calculate_coordinates(self.cord_queue)
-            print("stuck")
-            # self.velocity_publisher.publish(Twist())
-            # self.timer.destroy()
-            # self.pose_subscription.destroy()
-            # self.destroy_node()
-            # rclpy.shutdown()
+
 
 def main(args=None):
     cord_queue = Queue()
