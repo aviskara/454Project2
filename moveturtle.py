@@ -32,6 +32,11 @@ class MoveTurtle(Node):
             self.get_logger().info('waiting for service')
         self.req = SetParameters.Request()
         self.req2 = SetPen.Request()
+
+        #sets the background color
+        self.set_param('background_b', 0)
+        self.set_param('background_g', 0)
+        self.set_param('background_r', 80)
         
         # find the first set of coordinates
         self.cord_queue = coordinates
@@ -65,15 +70,15 @@ class MoveTurtle(Node):
         # if the new coordiantes are "-1 -1" means need to go to next cord in list with no path drawing
         # else have it on
         if (original_x == '-1') or (original_y == '-1'):
-            #self.set_pen(DRAW_LINE_OFF)
+            self.set_pen(DRAW_LINE_OFF)
             
             # grab next values
             cord = coordinates.get()
             original_x = cord.split()[0]
             original_y = cord.split()[1]
             
-        #else:
-            #self.set_pen(DRAW_LINE_ON)
+        else:
+            self.set_pen(DRAW_LINE_ON)
             
         print("c")
         print("oiginal coordinates: ", original_x, original_y)
@@ -93,7 +98,7 @@ class MoveTurtle(Node):
         self.req2.b = 255
         self.req2.off = off
         self.future = self.cli2.call_async(self.req2)
-        rclpy.spin_until_future_complete(self, self.future)
+        # rclpy.spin_until_future_complete(self, self.future)
         return self.future.result()
     
     # Function to continuosly calculate the distance to the goal as well as the angle the turtle must face to reach the goal. 
