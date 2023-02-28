@@ -95,6 +95,8 @@ class MoveTurtle(Node):
         self.future = self.cli2.call_async(self.req2)
         rclpy.spin_until_future_complete(self, self.future)
         return self.future.result()
+    
+    # Function to continuosly calculate the distance to the goal as well as the angle the turtle must face to reach the goal. 
 
     def timer_callback(self):
         distance_to_goal = round(((self.goal_x - self.turtle_pose.x) ** 2 + (self.goal_y - self.turtle_pose.y) ** 2) ** 0.5, 2)
@@ -102,9 +104,17 @@ class MoveTurtle(Node):
         max_linear_velocity = 0.5
         
         velocity = Twist()
-        velocity.linear.x = min(max_linear_velocity, distance_to_goal)
+        
+        # Make sure the turtle is properly aligned before moving forward
+
+        if abs(angle_to_goal - self.turtle_pose.theta) > 0.1:
+            velocity.linear.x = 0.0
+        else:
+            velocity.linear.x = min(max_linear_velocity, distance_to_goal)
+
         velocity.angular.z = 4 * (angle_to_goal - self.turtle_pose.theta)
         self.velocity_publisher.publish(velocity)
+
         # # rotate before driving forwards
         # if((angle_to_goal - self.turtle_pose.theta) > 0.1):
         #     velocity.angular.z = 1 * (angle_to_goal - self.turtle_pose.theta)
@@ -120,7 +130,7 @@ class MoveTurtle(Node):
         print(distance_to_goal, angle_to_goal, self.turtle_pose.theta)
         
         # set new goal position once arrived
-        if distance_to_goal < 0.1:
+        if distance_to_goal < 0.05:
             # time.sleep(2)
             print("here")
             self.calculate_coordinates(self.cord_queue)
